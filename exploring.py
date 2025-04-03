@@ -26,6 +26,8 @@ data = data.iloc[:, :2]
 # Rename columns
 data.columns = ["label", "text"]
 
+data = data.dropna() 
+
 # Check for missing values
 print(data.isnull().sum())
 
@@ -77,6 +79,12 @@ data["capital_count"] = data["text"].apply(count_capitalized_words)
 # Calculate average capitalized words per message for spam and ham
 spam_avg = data[data["label"] == 1]["capital_count"].mean()
 ham_avg = data[data["label"] == 0]["capital_count"].mean()
+
+# number of capitalized words in spam and ham
+spam_count = data[data["label"] == 1]["capital_count"].sum()
+ham_count = data[data["label"] == 0]["capital_count"].sum()
+print(f"Spam Count: {spam_count}")
+print(f"Ham Count: {ham_count}")
 
 # Create a bar chart
 plt.figure(figsize=(6,4))

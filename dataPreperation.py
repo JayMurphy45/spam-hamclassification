@@ -8,9 +8,12 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
+from matplotlib import pyplot as plt
+import seaborn as sns
 
 nltk.download("stopwords")
 from nltk.corpus import stopwords
+
 
 # Load dataset
 data = pd.read_csv('spam.csv', encoding='latin-1')
@@ -35,6 +38,26 @@ def remove_stopwords(text):
 # Apply stopword removal
 data["cleaned_text"] = data["text"].apply(remove_stopwords)
 
+# Function to replace uppercase words (3+ letters) with "CAPSWORD"
+def group_uppercase_words(text):
+    return re.sub(r'[A-Z]{2,}', 'capsword', text)
+
+data["cleaned_text"] = data["cleaned_text"].apply(group_uppercase_words)
+
+# Count occurrences of "CAPSWORD" in each message
+data["capsword_count"] = data["cleaned_text"].apply(lambda x: x.split().count("capsword"))
+
+# Aggregate counts by label
+capsword_counts = data.groupby("label")["capsword_count"].sum().reset_index()
+capsword_counts["label"] = capsword_counts["label"].map({0: "Ham", 1: "Spam"})  
+
+# Print results
+print(f"Number of CAPSWORD in Ham: {capsword_counts[capsword_counts['label'] == 'Ham']['capsword_count'].values[0]}")
+print(f"Number of CAPSWORD in Spam: {capsword_counts[capsword_counts['label'] == 'Spam']['capsword_count'].values[0]}")
+
+
+
+# Remove empty cleaned_text entries
 print(data["cleaned_text"].isnull().sum())
 print((data["cleaned_text"] == "").sum())
 data = data[data["cleaned_text"].str.strip() != ""]
@@ -43,34 +66,20 @@ print((data["cleaned_text"] == "").sum())
 # Show the difference
 print(data[["text", "cleaned_text"]].head())
 
-# build matrices
+# Build matrices
 count_matrix = tmu.build_count_matrix(data["cleaned_text"])
-print(count_matrix)
-
 tf_matrix = tmu.build_tf_matrix(data["cleaned_text"])
-print(tf_matrix)
-
 tfidf_matrix = tmu.build_tfidf_matrix(data["cleaned_text"])
-print(tfidf_matrix)
 
-
-
-# ------------------------------------------------------------------------
 # Extract target labels
 y = data["label"]
 
 # Split dataset into training (80%) and testing (20%)
-X_train_count, X_test_count, y_train, y_test = train_test_split(
-    count_matrix, y, test_size=0.2, random_state=42
-)
-X_train_tf, X_test_tf, _, _ = train_test_split(
-    tf_matrix, y, test_size=0.2, random_state=42
-)
-X_train_tfidf, X_test_tfidf, _, _ = train_test_split(
-    tfidf_matrix, y, test_size=0.2, random_state=42
-)
+X_train_count, X_test_count, y_train, y_test = train_test_split(count_matrix, y, test_size=0.2, random_state=42)
+X_train_tf, X_test_tf, _, _ = train_test_split(tf_matrix, y, test_size=0.2, random_state=42)
+X_train_tfidf, X_test_tfidf, _, _ = train_test_split(tfidf_matrix, y, test_size=0.2, random_state=42)
 
-# Initialize the support vector classifier
+# Initialize classifier
 clf = SVC(random_state=1)
 
 # Evaluate model performance on training data
