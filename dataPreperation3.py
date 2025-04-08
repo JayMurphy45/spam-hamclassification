@@ -60,3 +60,5 @@ clf.fit(X_train, y_train)
 # Evaluate
 y_pred = clf.predict(X_test)
 print(classification_report(y_test, y_pred))
+
+# this is taking too long was going to use this for feature selection but ive left it over night still not finished im adding it the appendix just to show i tried
