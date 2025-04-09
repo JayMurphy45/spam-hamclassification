@@ -39,7 +39,7 @@ from sklearn.feature_selection import chi2, f_classif
 
 # Apply univariate feature selection using Chi-Square
 features_scores_chi2, X_reduced_chi2 = tmu.stat_univariate_fs(
-    tfidf_matrix,  
+    tf_matrix,  
     data["label"],  
     weight_method=chi2,  
     selection_method='percentile', 
@@ -71,7 +71,7 @@ from sklearn.metrics import classification_report
 X_train, X_test, y_train, y_test = train_test_split(X_reduced_f , data["label"], test_size=0.2, random_state=42)
 
 # Train a classifier
-clf = SVC(random_state=42, C=1.0, kernel='rbf')
+clf = SVC(random_state=42, C=1.5, kernel='rbf')
 clf.fit(X_train, y_train)
 
 # Evaluate the model

@@ -39,7 +39,7 @@ from sklearn.feature_selection import chi2, f_classif
 
 # Apply univariate feature selection using Chi-Square
 features_scores_chi2, X_reduced_chi2 = tmu.stat_univariate_fs(
-    tfidf_matrix,  
+    tf_matrix,  
     data["label"],  
     weight_method=chi2,  
     selection_method='percentile', 
